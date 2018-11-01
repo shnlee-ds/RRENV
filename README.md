@@ -1,12 +1,12 @@
-# R package - Envelopes and Reduced-rank Regression
+# R package: Envelopes and Reduced-rank Regression
 
 A project developing a R-package which enables us to build Reduced-rank envelopes regression models
 
 ## Contributors
 
-* Pedro Orozco del Pino, PhD student in Biostatistics at University of Michigan, Ann Arbor
-* Sunghun Lee, Masters student in Applied Statistics at University of Michigan, Ann Arbor
-* Yixi Li, Masters student in Survery Methodology at University of Michigan, Ann Arbor
+* __Pedro Orozco del Pino__ (PhD student in Biostatistics at University of Michigan, Ann Arbor)
+* __Sunghun Lee__ (Masters student in Applied Statistics at University of Michigan, Ann Arbor)
+* __Yixi Li__ (Masters student in Survery Methodology at University of Michigan, Ann Arbor)
 
 ### Reference
 
