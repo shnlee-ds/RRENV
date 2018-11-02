@@ -15,5 +15,5 @@ This project is based on a research paper: [Envelopes and reduced-rank regressio
 
 ### Description
 
-A asdasd
+In multivariate regression analysis there is the case in which the coefficients matrix is not full rank. In such cases the reduced-rank methodology can get a better estimate than OLS. 
 
