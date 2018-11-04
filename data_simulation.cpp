@@ -2,7 +2,7 @@
 
 //Project: Reduced_Rank_Envelope_Regression
 //liyixi
-//2018.10.31
+//2018.11.04
 //Data_simulation
 
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]){
 	}
 
 	//cout << sqrt(f_norm) << endl;
-	cout << Beta.norm() << endl;
+	//cout << Beta.norm() << endl;
 
 
 //(2)Sigma generating
@@ -125,24 +125,24 @@ int main(int argc, char *argv[]){
 	}
 
 	MatrixXd Sigma = Gamma_orthogonal * Omega * Gamma_orthogonal.transpose() + Gamma_0 * Omega_0 * Gamma_0.transpose(); //r*u * u*u * u*r 
-	cout << Sigma << endl;
-	cout << Sigma.transpose() << endl;
+	//cout << Sigma << endl;
+	//cout << Sigma.transpose() << endl;
 
 //(3)X generating
 	//X~N(0,Ip) p*N
 	MatrixXd X(p,N);
-	/*
+	
 	for(int i=0; i<p; i++){
 		for(int j=0; j<N; j++){
 			rn = norm(rng);
 			X(i,j) = rn;
 		}	
 	}
-*/
+
 	MatrixXd X_centered = X.rowwise() - X.colwise().mean();
 	//cout <<  X_centered << endl;
-	cout << X.mean() << endl;
-	cout << X_centered.mean() << endl;
+	//cout << X.mean() << endl;
+	//cout << X_centered.mean() << endl;
 	//MatrixXd cov = (X_centered.adjoint() * X_centered) / double(X.rows() - 1);
 	//cout << cov << endl;
 
@@ -157,8 +157,8 @@ int main(int argc, char *argv[]){
 		}	
 	}
 	// decompose Sigma = A * A.transpose()
-	FullPivLU<MatrixXd> lu_sigma(Sigma); //chole
-	MatrixXd A = lu_sigma.matrixLU().triangularView<Upper>();
+	LLT<MatrixXd> ll_sigma(Sigma); //LL^T Cholesky decomposition
+	MatrixXd A = ll_sigma.matrixL();
 	
 	//error
 	MatrixXd error(r,N);
