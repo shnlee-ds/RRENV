@@ -7,6 +7,7 @@
 
 
 #include<iostream>
+#include<fstream>
 #include<vector>
 #include<cstdlib>
 #include<climits>
@@ -33,6 +34,7 @@ int main(int argc, char *argv[]){
 
 //random uniform distribution
 	mt19937 rng;
+	rng.seed(time(0));
 	uniform_real<> uni(0 ,1);
 	normal_distribution<> norm(0 ,1);
 	double rn;
@@ -165,6 +167,18 @@ int main(int argc, char *argv[]){
 	error = A * Z;
 	//Y
 	MatrixXd Y = Beta * X_centered + error;
+	
+	//Write X, Y and Beta in three files 
+	ofstream Xfile, Bfile, Yfile;
+        Xfile.open ("X.txt");
+        Xfile << X;
+        Xfile.close();
+        Yfile.open ("Y.txt");
+        Yfile << Y;
+        Yfile.close();
+        Bfile.open ("Betas.txt");
+        Bfile << Beta;
+        Bfile.close();
 
 }
 
