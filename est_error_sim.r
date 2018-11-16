@@ -54,6 +54,7 @@ for(i in 1:3){
         return(betas)
       }
       
+      # Get estimation errors for each model
       p = cases[[i]]['p']; d = cases[[i]]['d'] ; u = cases[[i]]['u'] ; r = cases[[i]]['r']
       ols = norm(OLS(X,Y)-Beta,type="F")
       env = norm(env(t(X),t(Y),u)$beta-Beta,type="F")
@@ -64,6 +65,8 @@ for(i in 1:3){
       err[err$CASE==i&err$SIZE==j,3:6] =  errs
     }
   }
+  
+  # Visualize errors by each case
   d = err[err$CASE==i,-c(1,2)]
   matplot(d, type = c("b"), pch=1:4, col = 1:4, ylim=c(0,4.1),
           xlab="Sample size", ylab="Averaged estimation error", xaxt = "n",
