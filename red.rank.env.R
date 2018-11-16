@@ -2,15 +2,16 @@
 #Evaluate our simulations
 library(Renvlp)
 library(expm)
+library(readr)
 setwd("~/Box Sync/Dropbox/Michigan/Courses/Fall 2018/BIOSTAT 615/Final Prjoect")
-
+#setwd("/Users/Loielaine/Desktop/Good_Good_Study/2018Fall/BIOSTAT615_Statistic_Computing/project/Rpackages-Envelopes_and_ReducedRankReg/")
 #WARNING: To follow the articles notation individuals are keep like columns insteadas the usual notation where individuals are rows. This is why the envelope recibes t(X) and t(Y)
 Y<-as.matrix(read.table("Y.txt"))#Y file from data_simulation.cpp
 X<-as.matrix(read.table("X.txt"))#X file from data_simulation.cpp
 Beta<-as.matrix(read.table("Betas.txt"))#Betas file from data_simulation.cpp
 r<-dim(Y)[1]#number of variables as response
 p<-dim(X)[1]#number of predictor
-u<-10 #Dimension of the Envelope
+u<-3 #Dimension of the Envelope
 d<-2 #Rank of the betas
 red.rank.envelope<-function(X,Y,u,d){
   E<-env(t(X),t(Y),u)#Estimate the envelope given the dimension
@@ -25,7 +26,7 @@ red.rank.envelope<-function(X,Y,u,d){
   Syg<-Y.g%*%t(Y.g)/N #Empirical variance of Y
   Cyg.x<-sqrtm(solve(Syg))%*%Sxyg%*%sqrtm(solve(Sx)) #Canonical Covariance
   D.truncated<-diag(c(svd(Cyg.x)$d[1:d],rep(0,length(svd(Cyg.x)$d)-d))) #Tacking the highest d eigen values
-  Cyg.x.d<-svd(Cyg.x)$u%*%D.truncated%*%t(svd(Cyg.x)$v) #Reduced Canonical Covariance
+  Cyg.x.d<-svd(Cyg.x)$u%*%D.truncated%*%t(svd(Cyg.x)$v) #Reduced Canonical Covariance 
   beta.r.e<-Gamma%*%sqrtm(Syg)%*%Cyg.x.d%*%solve(sqrtm(Sx)) #Estimated betas of the reduced rank regression
   return(beta.r.e)
 }
@@ -37,6 +38,11 @@ OLS<-function(X,Y){
     betas[i,]<-lm(Y[i,]~t(X))$coefficients[-1]
   return(betas)
 }
+
+#write files 
+write_csv(data.frame(env(t(X),t(Y),u)$Gamma),"Gamma.csv",col_names = F)
+write_csv(data.frame(red.rank.envelope(X,Y,u,d)),"Beta_R.csv",col_names = F)
+
 print("Reduce-rank ")
 norm(red.rank.envelope(X,Y,dim(Y)[1],2)-Beta,type = "F")#reduce Rank
 print("Reduce-rank Envelope")
@@ -45,3 +51,5 @@ print("OLS")
 (norm(OLS(X,Y)-Beta,type="F"))#OLS
 print("Envelope")
 (norm(env(t(X),t(Y),u)$beta-Beta,type="F"))#Envelope
+
+
