@@ -20,4 +20,4 @@ In multivariate regression analysis there is the case in which the coefficients 
 
 ### Data simulation
  
-![alt text](Data simulation.png "Logo Title Text 1")
+![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/edit/master/Data simulation.png)
