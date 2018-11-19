@@ -30,20 +30,50 @@ MatrixXd reduceRankEnvelope(MatrixXd X, MatrixXd Y, int u, int d, MatrixXd Gamma
 	//estimate the reduced rank envelope estimator
 	//variance and covariance
 	MatrixXd Sx = (X * X.transpose())/ double(N);  //p*p
-	MatrixXd Syg = ((Y_gamma.rowwise() - Y_gamma.colwise().mean()) * (Y_gamma.rowwise() - Y_gamma.colwise().mean()).transpose())/ double(N); //u*u 
-	MatrixXd Sxyg = (X * (Y_gamma.rowwise() - Y_gamma.colwise().mean()).transpose()) /double(N); //p*u
+	//MatrixXd Syg = ((Y_gamma.rowwise() - Y_gamma.colwise().mean()) * (Y_gamma.rowwise() - Y_gamma.colwise().mean()).transpose())/ double(N); //u*u 
+	MatrixXd Syg = (Y_gamma*Y_gamma.transpose())/ double(N); //u*u 
+	//MatrixXd Sxyg = (X * (Y_gamma.rowwise() - Y_gamma.colwise().mean()).transpose()) /double(N); //p*u
+	MatrixXd Sxyg = (X * Y_gamma.transpose()) /double(N); //p*u
+
 
 	//canonical covariance
-	LLT<MatrixXd> ll_x(Sx); //LL^T Cholesky decomposition
-	MatrixXd Sx_sqrt = ll_x.matrixL();
-	LLT<MatrixXd> ll_y(Syg); //LL^T Cholesky decomposition
-	MatrixXd Syg_sqrt = ll_y.matrixL();
-	MatrixXd Cancov = Syg_sqrt.inverse() * Sxyg.transpose() * Sx_sqrt.inverse(); // u*u * u*p * p*p = u*p
+	JacobiSVD<MatrixXd> svdx(Sx.inverse(),ComputeThinU | ComputeThinV);
+	JacobiSVD<MatrixXd> svdy(Syg.inverse(),ComputeThinU | ComputeThinV);
+	JacobiSVD<MatrixXd> svdyp(Syg,ComputeThinU | ComputeThinV);
+	
+	MatrixXd sqrtD = MatrixXd::Zero(p,p);
+  	ArrayXXd D = svdx.singularValues().array().sqrt();
+  	int i=0;
+  	while(i<p){
+  		sqrtD(i,i) = D(i,0);
+  		i++;
+  	}	
+	MatrixXd Sx_sqrt = svdx.matrixU() * sqrtD * svdx.matrixU().inverse();
+	
+	sqrtD = MatrixXd::Zero(u,u);
+  	D = svdy.singularValues().array().sqrt();
+  	i=0;
+  	while(i<u){
+  		sqrtD(i,i) = D(i,0);
+  		i++;
+  	}
+	MatrixXd Syg_sqrt = svdy.matrixU() * sqrtD * svdy.matrixU().inverse();
+	
+  	D = svdyp.singularValues().array().sqrt();
+  	i=0;
+  	while(i<u){
+  		sqrtD(i,i) = D(i,0);
+  		i++;
+  	}
+	MatrixXd Syg_sqrt2 = svdyp.matrixU() * sqrtD * svdyp.matrixU().inverse();
 
+		
+	MatrixXd Cancov = Syg_sqrt * Sxyg.transpose() * Sx_sqrt; // u*u * u*p * p*p = u*p
+	
 	//truncate canonical covariance
 	JacobiSVD<MatrixXd> svd(Cancov,ComputeThinU | ComputeThinV);
 	MatrixXd truncated = MatrixXd::Zero(u,u);
-  	int i=0;
+  	i=0;
   	while(i<d){
   		truncated(i,i) = svd.singularValues()(i,0);
   		i++;
@@ -52,7 +82,7 @@ MatrixXd reduceRankEnvelope(MatrixXd X, MatrixXd Y, int u, int d, MatrixXd Gamma
   	
 
   	//estimate beta
-  	MatrixXd Beta = Gamma * Syg_sqrt * Cancov_truncated * Sx_sqrt.inverse(); //r*u * u*u * u*p * p*p = r*p
+  	MatrixXd Beta = Gamma * Syg_sqrt2 * Cancov_truncated * Sx_sqrt; //r*u * u*u * u*p * p*p = r*p
   	return Beta;
 }
 
