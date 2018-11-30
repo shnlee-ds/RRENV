@@ -7,10 +7,12 @@
 
 
 #include <stdio.h>
+//#include <RcppEigen.h>
+//#include <BH.h>
 #include "ReadMatrix615.h"
-#include <RcppEigen.h>
 
 // [[Rcpp:depends(RcppEigen)]]
+// [[Rcpp:depends(BH)]]
 
 using namespace std;
 using namespace boost;
@@ -65,7 +67,7 @@ public:
 	else{
 		Y_gamma = Gamma.transpose() * Y;
 	}
-	int r_gamma = Y_gamma.rows(); // Y_gamma: u * N
+	 // Y_gamma: u * N
 
 	//estimate the reduced rank envelope estimator
 	//variance and covariance
@@ -131,12 +133,11 @@ public:
 };
 
 extern "C"{
-void R_reduced_rank_envelope(MatrixXd* R_X,MatrixXd* R_Y,MatrixXd* R_Gamma,MatrixXd* R_Gamma0){
- 
-	MatrixXd X = *R_X;
-	MatrixXd Y = *R_Y;
-	MatrixXd Gamma = *R_Gamma;
-	MatrixXd Gamma0 = *R_Gamma0;
+void R_reduced_rank_envelope(){
+ 	MatrixXd X = readFromFile<double>("X.csv"); 
+ 	MatrixXd Y = readFromFile<double>("Y.csv"); 
+	MatrixXd Gamma = readFromFile<double>("Gamma.csv"); 
+	MatrixXd Gamma0 = readFromFile<double>("Gamma0.csv"); 
 
 //parameters(TODO: use BIC to choose u,d)
 	int u,d;
