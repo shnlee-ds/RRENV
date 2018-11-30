@@ -133,24 +133,52 @@ public:
 };
 
 extern "C"{
-void R_reduced_rank_envelope(){
- 	MatrixXd X = readFromFile<double>("X.csv"); 
- 	MatrixXd Y = readFromFile<double>("Y.csv"); 
-	MatrixXd Gamma = readFromFile<double>("Gamma.csv"); 
-	MatrixXd Gamma0 = readFromFile<double>("Gamma0.csv"); 
+void R_reduced_rank_envelope(double* R_X, int* nrow_X, int* ncol_X,
+	                         double* R_Y, int* nrow_Y, int* ncol_Y,
+	                         int* R_u, int* R_d,
+	                         double* R_Gamma, int* nrow_G, int* ncol_G,
+	                         double* R_Gamma0,int* nrow_G0, int* ncol_G0,
+	                         double* R_beta, double* R_fitvalues, 
+	                         double* R_residuals, double* R_residualvariances){
+ 	
 
-//parameters(TODO: use BIC to choose u,d)
-	int u,d;
-	u = 30;
-	d = 10; 
+    Map<MatrixXd> X(R_X,*nrow_X,*ncol_X);
+    Map<MatrixXd> Y(R_Y,*nrow_Y,*ncol_Y);
+    Map<MatrixXd> Gamma(R_Gamma,*nrow_G,*ncol_G);
+    Map<MatrixXd> Gamma0(R_Gamma0,*nrow_G0,*ncol_G0);
+
+//parameters
+	int u = *R_u;
+	int d = *R_d;
 
 //reduced rank envelope
 ReduceRankEnvelope rre(X, Y, u, d, Gamma, Gamma0); //input(TODO: use BIC to choose u,d)
 rre.initialize();
-MatrixXd Beta_hat = rre.beta(); 
-MatrixXd FitValues = rre.fitValues();
-MatrixXd Residuals = rre.residualValues();
-MatrixXd ResidualVariance = rre.residualVariance(); 
+MatrixXd Beta_hat = rre.beta();  //r*p
+MatrixXd FitValues = rre.fitValues(); //r*N
+MatrixXd Residuals = rre.residualValues(); //r*N
+MatrixXd ResidualVariance = rre.residualVariance(); //r*r 
+
+//output
+for(int i=0;i<*nrow_Y;i++){
+	for(int j=0; j<*nrow_X;j++){
+		R_beta[*nrow_Y*j+i] = Beta_hat(i,j);
+	}
+}
+
+for(int i=0;i<*nrow_Y;i++){
+	for(int j=0; j<*ncol_Y;j++){
+		R_fitvalues[*nrow_Y*j+i] = FitValues(i,j);
+		R_residuals[*nrow_Y*j+i] = Residuals(i,j);
+	}
+}
+
+for(int i=0;i<*nrow_Y;i++){
+	for(int j=0; j<*nrow_Y;j++){
+		R_residualvariances[*nrow_Y*j+i] = ResidualVariance(i,j);
+	}
+}
+
 
 }
 }
