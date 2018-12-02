@@ -4,26 +4,40 @@ library(readr)
 library(data.table)
 library(ggplot2)
 library(plyr)
-
+library(mvtnorm)
 
 rrenv.choose_du = function(X,Y, Beta=NULL){
   
-  red.rank.envelope<-function(X,Y,u,d){
-    E<-env(t(X),t(Y),u)
-    Gamma<-E$Gamma
-    Gamma0<-E$Gamma0
-    N<-dim(Y)[2]
-    ifelse(u!=dim(Y)[1],Y.g<-t(Gamma)%*%as.matrix(Y),Y.g<-Y)
-    r.g<-dim(Y.g)[1]
-    Sx<-X%*%t(X)/N
-    Sxyg<-t(X%*%scale(t(Y.g), scale = FALSE))/N
-    Syg<-Y.g%*%t(Y.g)/N
-    Cyg.x<-sqrtm(solve(Syg))%*%Sxyg%*%sqrtm(solve(Sx))
-    D.truncated<-diag(c(svd(Cyg.x)$d[1:d],rep(0,length(svd(Cyg.x)$d)-d)))
-    Cyg.x.d<-svd(Cyg.x)$u%*%D.truncated%*%t(svd(Cyg.x)$v)
-    beta.r.e<-Gamma%*%sqrtm(Syg)%*%Cyg.x.d%*%solve(sqrtm(Sx))
-    return(beta.r.e)
+  dyn.load("R_reduced_rank_envelope.so")
+  R_reduced_rank_envelope_given_u_d <- function(X,Y,u,d){
+    X = as.matrix(X)
+    Y = as.matrix(Y)
+    u = as.integer(u)
+    d = as.integer(d)
+    Gamma = env(t(X),t(Y),u)$Gamma
+    Gamma0 = env(t(X),t(Y),u)$Gamma0
+    if(u==nrow(Y)){Gamma0 = matrix(0)}
+    R_beta = rep(0.0, length=nrow(Y)*nrow(X))
+    R_fitvalues = rep(0.0, length=nrow(Y)*ncol(Y))
+    R_residuals = rep(0.0, length=nrow(Y)*ncol(Y))
+    R_residualvariances = rep(0.0, length=nrow(Y)*nrow(Y))
+    res = .C("R_reduced_rank_envelope",
+             X,nrow(X),ncol(X), 
+             Y,nrow(Y),ncol(Y),
+             u,d,
+             Gamma,nrow(Gamma),ncol(Gamma),
+             Gamma0,nrow(Gamma0),ncol(Gamma0),
+             R_beta = R_beta,
+             R_fitvalues = R_fitvalues,
+             R_residuals = R_residuals,
+             R_residualvariances = R_residualvariances)
+    return(list(beta=matrix(res$R_beta,nrow=nrow(Y),ncol=nrow(X)),
+                fitvalues=matrix(res$R_fitvalues,nrow=nrow(Y),ncol=ncol(Y)),
+                residuals=matrix(res$R_residuals,nrow=nrow(Y),ncol=ncol(Y)),
+                residual_variance=matrix(res$R_residualvariances,nrow=nrow(Y),ncol=nrow(Y))))
   }
+  
+  
   p = dim(X)[1]
   r = dim(Y)[1]
   max.u = r
@@ -39,17 +53,25 @@ rrenv.choose_du = function(X,Y, Beta=NULL){
       while(d<max.d & d<u){
         d = d+1
         cnt = cnt+1
-        est.Betas = red.rank.envelope(X,Y,u,d)
-        est.Ys = est.Betas %*% X
-        err = norm(est.Ys-Y,type = "F")
+        est = R_reduced_rank_envelope_given_u_d(X,Y,u,d)
+        est.Betas = est$beta
+        est.Ys = est$fitvalues
+        est.residual_variance = est$residual_variance
+        NR = (p+u-d)*d + ((r*(r+1))/2)
+        Lud = 0
+        for(i in 1:r){
+          L = dmvnorm(x = t(Y)[i,], mean=t(est.Ys)[i,], sigma=(est.residual_variance), log=T)
+          Lub = Lud + L
+        }
+        err = 2*NR - 2*Lud
         err.table[cnt,1]=d; err.table[cnt,2]=u; err.table[cnt,3]=err
       }
     }
     err.table = as.data.frame(err.table)
-    names(err.table) = c('d','u','Error_in_Y')
+    names(err.table) = c('d','u','AIC')
     m <- ddply(err.table, .(d), transform, rescale = scales::rescale(Error_in_Y))
-    p <- ggplot(m, aes(d, u)) + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
-    return(list(error_table = err.table, best_combination = err.table[which.min(err.table[,3]),], heatmap=p))
+    heatmap <- ggplot(m, aes(d, u)) + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
+    return(list(error_table = err.table, best_combination = err.table[which.min(err.table[,3]),], heatmap=heatmap))
   } 
   
   
@@ -59,7 +81,9 @@ rrenv.choose_du = function(X,Y, Beta=NULL){
       while(d<max.d & d<u){
         d = d+1
         cnt = cnt+1
-        est.Betas = red.rank.envelope(X,Y,u,d)
+        NR = (p+u-d)*d + ((r*(r+1))/2)
+        est = R_reduced_rank_envelope_given_u_d(X,Y,u,d)
+        est.Betas = est$beta
         err = norm(est.Betas-Beta,type = "F")
         err.table[cnt,1]=d; err.table[cnt,2]=u; err.table[cnt,3]=err
       }
@@ -67,7 +91,7 @@ rrenv.choose_du = function(X,Y, Beta=NULL){
     err.table = as.data.frame(err.table)
     names(err.table) = c('d','u','Error_in_Beta')
     m <- ddply(err.table, .(d), transform, rescale = scales::rescale(Error_in_Beta))
-    p <- ggplot(m, aes(d, u)) + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
+    p <- ggplot(m, aes(d, u)) + theme_bw() + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
     return(list(error_table = err.table, best_combination = err.table[which.min(err.table[,3]),], heatmap=p))
   }
   else{
