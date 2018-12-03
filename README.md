@@ -21,3 +21,10 @@ In multivariate regression analysis there is the case in which the coefficients 
 ### Data simulation
  
 ![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/blob/master/simulation.png)
+
+
+### Choose d and u
+
+When you have a data, our package can recommend the parameter d and u for a reduced-rank envelope regression modeling based on the error calculation. When you input the matrices of X, Y and the real Beta (the left case of below figure), the function 'choose_du' calculates 
+![](https://latex.codecogs.com/gif.latex?%5Cleft%20%5C%7C%20%5Chat%7B%5Cbeta%7D-%5Cbeta%20%5Cright%20%5C%7C_F)
+![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/blob/master/choosedu.png)
