@@ -69,8 +69,8 @@ rrenv.choose_du = function(X,Y, Beta=NULL){
     }
     err.table = as.data.frame(err.table)
     names(err.table) = c('d','u','AIC')
-    m <- ddply(err.table, .(d), transform, rescale = scales::rescale(Error_in_Y))
-    heatmap <- ggplot(m, aes(d, u)) + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
+    m <- ddply(err.table, .(d), transform, rescale = scales::rescale(AIC))
+    heatmap <- ggplot(m, aes(d, u)) + theme_gray() + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
     return(list(error_table = err.table, best_combination = err.table[which.min(err.table[,3]),], heatmap=heatmap))
   } 
   
@@ -91,8 +91,8 @@ rrenv.choose_du = function(X,Y, Beta=NULL){
     err.table = as.data.frame(err.table)
     names(err.table) = c('d','u','Error_in_Beta')
     m <- ddply(err.table, .(d), transform, rescale = scales::rescale(Error_in_Beta))
-    p <- ggplot(m, aes(d, u)) + theme_bw() + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
-    return(list(error_table = err.table, best_combination = err.table[which.min(err.table[,3]),], heatmap=p))
+    heatmap <- ggplot(m, aes(d, u)) + theme_gray() + geom_tile(aes(fill = rescale), colour = "white") + scale_fill_gradient(low = "white",  high = "steelblue")
+    return(list(error_table = err.table, best_combination = err.table[which.min(err.table[,3]),], heatmap=heatmap))
   }
   else{
     print("Error: Invalid Beta Matrix!")}
@@ -105,7 +105,6 @@ Beta = as.matrix(read.table('/Users/shnlee/Desktop/615final/Beta.txt'))
 
 a = rrenv.choose_du(X=X, Y=Y, Beta=Beta)
 b = rrenv.choose_du(X=X, Y=Y, Beta=NULL)
-c = rrenv.choose_du(X=X, Y=Y, Beta=Beta2)
 
 a$error_table
 a$best_combination
