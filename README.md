@@ -25,6 +25,8 @@ In multivariate regression analysis there is the case in which the coefficients 
 
 ### Choose d and u
 
-When you have a data, our package can recommend the parameter d and u for a reduced-rank envelope regression modeling based on the error calculation. When you input the matrices of X, Y and the real Beta (the left case of below figure), the function 'choose_du' calculates 
-![](https://latex.codecogs.com/gif.latex?%5Cleft%20%5C%7C%20%5Chat%7B%5Cbeta%7D-%5Cbeta%20%5Cright%20%5C%7C_F)
-![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/blob/master/choosedu.png)
+When you have a data, our package can recommend the parameter d and u for a reduced-rank envelope regression modeling based on the error calculation. When you input the matrices of X, Y and the real Beta (the left case of below figure), the function 'choose_du' calculates  ![](https://latex.codecogs.com/gif.latex?%5Cleft%20%5C%7C%20%5Chat%7B%5Cbeta%7D-%5Cbeta%20%5Cright%20%5C%7C_F), while it calculates ![](https://latex.codecogs.com/gif.latex?AIC%20%3D%202N_%7BRE%7D%20-%202L_%7Bu%2Cd%7D%20%3D%20%28p&plus;r-d%29d&plus;r%28r&plus;1%29/2%20-%202%5Chat%7BL%7D_%7Bu%2Cd%7D) when you input the matrices of X and Y without the real Beta matrix (the right case of below figure).
+
+The function 'choose_du' returns not only the heatmap but also the best combination of (d,u) based on the calculated errors.
+
+![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/blob/master/choosedu.png) 
