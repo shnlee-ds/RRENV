@@ -59,10 +59,12 @@ rrenv.choose_du = function(X,Y, Beta=NULL){
         est.residual_variance = est$residual_variance
         NR = (p+u-d)*d + ((r*(r+1))/2)
         Lud = 0
-        for(i in 1:r){
-          L = dmvnorm(x = t(Y)[i,], mean=t(est.Ys)[i,], sigma=(est.residual_variance), log=T)
-          Lub = Lud + L
-        }
+#        for(i in 1:r){
+#          L = dmvnorm(x = t(Y)[i,], mean=t(est.Ys)[i,], sigma=(est.residual_variance), log=T)
+#          Lub = Lud + L
+#        }
+        Lud = sapply(1:dim(Y)[2],function(i){dmvnorm(Y[,i],est.Ys[,i],est.residual_variance,log=T)})
+        Lud = sum(unlist(Lud))
         err = 2*NR - 2*Lud
         err.table[cnt,1]=d; err.table[cnt,2]=u; err.table[cnt,3]=err
       }
