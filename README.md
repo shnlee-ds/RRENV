@@ -28,18 +28,18 @@ We compared the performance (in terms of the fit of model) of our new Reduced-ra
 The pseudocode of the implementation of reduced-rank envelope regression is as follows:
 #### Data: Input multivariate data (X,Y), with dimension of X is p\*N, and dimension of Y is r\*N
 #### Result: Return the best selection of (u,d), estimates of beta, fitted values, residuals, variance of residuals, error table
-if (u,d) is not given, do:
-  select (u,d) by _rrenv.choose_du(X, Y, Beta=NULL)_
-  return the best selction of (u,d)
-if (u,d) is given, do:
-  check whether the input (u,d) is valid
-redeced-rank envelope regression:
-   envelope estimation:
-    estimate the envelope by _envlp_(X,Y,u,d) 
-    return Gamma, Gamma0
-  reduecd-rank regression:
-    estimate beta by _rrenv_given_du(X,Y,u,d, Gamma, Gamma0) in C++
-    return estimates of beta, fitted values, residuals, variance of residuals, error table
+- if (u,d) is not given, do:
+  - select (u,d) by _rrenv.choose_du(X, Y, Beta=NULL)_
+  - return the best selction of (u,d)
+- if (u,d) is given, do:
+  - check whether the input (u,d) is valid
+- redeced-rank envelope regression:
+  - envelope estimation:
+    - estimate the envelope by _envlp_(X,Y,u,d)_ 
+    - return Gamma, Gamma0
+  - reduecd-rank regression:
+    - estimate beta by _rrenv_given_du(X,Y,u,d, Gamma, Gamma0)_ in C++
+    - return estimates of beta, fitted values, residuals, variance of residuals, error table
 
 
 ### Selection of parameter d and u
