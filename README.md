@@ -26,7 +26,7 @@ We compared the performance (in terms of the fit of model) of our new Reduced-ra
 
 ### Implementation of reduced-rank envelope regression
 The pseudocode of the implementation of reduced-rank envelope regression is as follows:
-#### Data: multivariate data (X,Y), with dimension of X is p*N, and dimension of Y is r*N
+#### Data: multivariate data (X,Y), with dimension of X is p\*N, and dimension of Y is r\*N
 
 
 ### Selection of parameter d and u
