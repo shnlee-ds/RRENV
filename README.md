@@ -29,7 +29,7 @@ The pseudocode of the implementation of reduced-rank envelope regression is as f
 #### Data: Input multivariate data (X,Y), with dimension of X is p\*N, and dimension of Y is r\*N
 #### Result: Return the best selection of (u,d), estimates of beta, fitted values, residuals, variance of residuals, error table
 - if (u,d) is not given, do:
-  - select (u,d) by _rrenv.choose_du(X, Y, Beta=NULL)_
+  - select (u,d) by _rrenv_choose_du(X, Y, Beta=NULL)_
   - return the best selction of (u,d)
 - if (u,d) is given, do:
   - check whether the input (u,d) is valid
@@ -38,10 +38,10 @@ The pseudocode of the implementation of reduced-rank envelope regression is as f
     - estimate the envelope by _envlp_(X,Y,u,d)_ 
     - return Gamma, Gamma0
   - reduecd-rank regression:
-    - estimate beta by _rrenv_given_du(X,Y,u,d, Gamma, Gamma0)_ in C++
+    - estimate beta by _R_reduced_rank_envelope_given_u_d(X,Y,u,d, Gamma, Gamma0)_ in C++
     - return estimates of beta, fitted values, residuals, variance of residuals, error table
 
-Reduced-rank enevelope regression is implemented in R and C++, and is warpped into a R package.
+Reduced-rank enevelope regression is implemented in R and C++, and is warpped into a R package, _rrenv_.
 ```ruby
 rrenv = function(X,Y,u=NULL,d=NULL,Beta=NULL){
   X = as.matrix(X)
@@ -109,7 +109,19 @@ rrenv = function(X,Y,u=NULL,d=NULL,Beta=NULL){
   return(est)
 }
 ```
-
+A example to use _rrenv_ in R is:
+```ruby
+#input X and Y
+Y<-as.matrix(read.table("Y.txt"))
+X<-as.matrix(read.table("X.txt"))
+est <- rrenv(X,Y,20,10,NULL)
+#returns
+beta<-est$beta
+fit_values<-est$fit_values
+residuals<-est$residuals
+residual_variance<-est$residual_variance
+error_table<-est$error_table
+```
 
 ### Selection of parameter d and u
 
