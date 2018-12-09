@@ -31,4 +31,4 @@ When you have a data, a function _rrenv.choose_du(X, Y, Beta=NULL)_ in our packa
 
 The function _rrenv.choose_du(X, Y, Beta=NULL)_ returns not only the heatmap but also the best combination of (d,u) based on the calculated errors.
 
-![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/blob/master/choosedu.png) 
+![ScreenShot](https://github.com/shnlee-ds/Rpackages-Envelopes_and_ReducedRankReg/blob/master/choose_du.png) 
