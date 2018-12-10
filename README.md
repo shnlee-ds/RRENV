@@ -29,7 +29,7 @@ The pseudocode of the implementation of reduced-rank envelope regression is as f
 #### Data: Input multivariate data (X,Y), with dimension of X is p\*N, and dimension of Y is r\*N
 #### Result: Return the best selection of (u,d), estimates of beta, fitted values, residuals, variance of residuals, error table
 - if (u,d) is not given, do:
-  - select (u,d) by _rrenv_choose_du(X, Y, Beta=NULL)_
+  - select (u,d) by _rrenv.choose_du(X, Y, Beta=NULL)_
   - return the best selction of (u,d)
 - if (u,d) is given, do:
   - check whether the input (u,d) is valid
