@@ -1,6 +1,7 @@
 # R package: Envelopes and Reduced-rank Regression
 
 A project developing a R-package which enables us to build Reduced-rank envelopes regression models
+Final Report: https://github.com/shnlee-ds/RRENV/blob/master/report/RRE_Final_report_group2.pdf
 
 ## Contributors
 
